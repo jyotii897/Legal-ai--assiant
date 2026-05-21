@@ -1,21 +1,23 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { language, t } = useLanguage();
 
   const menuItems = [
-    { label: "Dashboard", href: "/", icon: "🏠" },
-    { label: "Upload Contract", href: "/upload", icon: "📤" },
-    { label: "Analyzed Contracts", href: "/", icon: "📁" },
-    { label: "Risk Reports", href: "/", icon: "⚠️" },
-    { label: "Clause Library", href: "/", icon: "📜" },
-    { label: "Templates", href: "/", icon: "📄" },
-    { label: "API Settings", href: "/", icon: "🔌" },
-    { label: "Billing & Usage", href: "/", icon: "💳" },
-    { label: "Settings", href: "/", icon: "⚙️" },
-    { label: "Help & Support", href: "/", icon: "❓" },
+    { label: t("dashboard"), href: "/", icon: "🏠" },
+    { label: t("uploadContract"), href: "/upload", icon: "📤" },
+    { label: t("analyzedContracts"), href: "/", icon: "📁" },
+    { label: t("risks"), href: "/", icon: "⚠️" },
+    { label: language === "en" ? "Clause Library" : "क्लॉज लाइब्रेरी", href: "/", icon: "📜" },
+    { label: language === "en" ? "Templates" : "टेम्पलेट्स", href: "/", icon: "📄" },
+    { label: language === "en" ? "API Settings" : "एपीआई सेटिंग्स", href: "/", icon: "🔌" },
+    { label: language === "en" ? "Billing & Usage" : "बिलिंग और उपयोग", href: "/", icon: "💳" },
+    { label: language === "en" ? "Settings" : "सेटिंग्स", href: "/", icon: "⚙️" },
+    { label: language === "en" ? "Help & Support" : "सहायता और सहायता", href: "/", icon: "❓" },
   ];
 
   return (
@@ -32,7 +34,6 @@ export default function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1">
         {menuItems.map((item, idx) => {
-          // In the sidebar, highlight item as active based on pathname
           const isActive = pathname === item.href;
           return (
             <Link
@@ -52,10 +53,12 @@ export default function Sidebar() {
         <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4">
           <div className="flex items-center gap-2 mb-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs font-bold text-slate-300">API Status</span>
+            <span className="text-xs font-bold text-slate-300">{t("apiStatus")}</span>
           </div>
-          <div className="text-xs font-semibold text-emerald-400 mb-1">Online</div>
-          <div className="text-[10px] text-slate-500">All systems operational</div>
+          <div className="text-xs font-semibold text-emerald-400 mb-1">
+            {language === "en" ? "Online" : "ऑनलाइन"}
+          </div>
+          <div className="text-[10px] text-slate-500">{t("systemsOperational")}</div>
         </div>
       </div>
     </aside>

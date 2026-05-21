@@ -1,6 +1,7 @@
 "use client";
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function UploadPage() {
   const router = useRouter();
@@ -9,8 +10,9 @@ export default function UploadPage() {
   const [uploading, setUploading] = useState(false);
   const [stage, setStage] = useState("");
   const [error, setError] = useState("");
+  const { language, t } = useLanguage();
 
-  const stages = [
+  const stages = language === "en" ? [
     "📄 Extracting text (OCR)...",
     "✂️ Chunking document...",
     "🧠 Generating embeddings...",
@@ -18,13 +20,21 @@ export default function UploadPage() {
     "📌 Classifying clauses (LegalBERT)...",
     "⚠️ Running risk analysis...",
     "📝 Generating AI summary...",
+  ] : [
+    "📄 पाठ निष्कर्षण (ओसीआर)...",
+    "✂️ दस्तावेज़ विभाजन (चंकिंग)...",
+    "🧠 एम्बेडिंग्स उत्पन्न करना...",
+    "🔍 फ़ैस (FAISS) इंडेक्स बनाना...",
+    "📌 कानूनी धाराओं का वर्गीकरण...",
+    "⚠️ जोखिम विश्लेषण मूल्यांकन...",
+    "📝 एआई सारांश उत्पन्न करना...",
   ];
 
   const handleFile = (f: File) => {
     setError("");
     const ext = f.name.split(".").pop()?.toLowerCase();
     if (!["pdf", "docx", "txt"].includes(ext || "")) {
-      setError("Only PDF, DOCX, and TXT files are supported.");
+      setError(language === "en" ? "Only PDF, DOCX, and TXT files are supported." : "केवल पीडीएफ, डॉक्स और टीएक्सटी फ़ाइलें समर्थित हैं।");
       return;
     }
     setFile(f);
@@ -34,7 +44,7 @@ export default function UploadPage() {
     e.preventDefault();
     setDragging(false);
     if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
-  }, []);
+  }, [language]);
 
   const handleUpload = async () => {
     if (!file) return;
@@ -66,15 +76,15 @@ export default function UploadPage() {
       clearInterval(interval);
       setUploading(false);
       setStage("");
-      setError(e instanceof Error ? e.message : "Upload failed. Is the backend running?");
+      setError(e instanceof Error ? e.message : (language === "en" ? "Upload failed. Is the backend running?" : "अपलोड विफल रहा। क्या बैकएंड चालू है?"));
     }
   };
 
   return (
     <div className="upload-container">
       <div style={{ textAlign: "center", marginBottom: 24 }}>
-        <h1 className="page-title">Upload Legal Contract</h1>
-        <p className="page-subtitle">Supports PDF · DOCX · TXT — AI analysis runs automatically</p>
+        <h1 className="page-title">{t("uploadTitle")}</h1>
+        <p className="page-subtitle">{t("uploadSub")}</p>
       </div>
 
       {/* Drop Zone */}
@@ -96,13 +106,15 @@ export default function UploadPage() {
           <div>
             <div style={{ fontSize: 32, marginBottom: 12 }}>✅</div>
             <p style={{ color: "#34d399", fontWeight: 600, fontSize: 15, marginBottom: 4 }}>{file.name}</p>
-            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>{(file.size / 1024).toFixed(1)} KB — Click to change file</p>
+            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>
+              {(file.size / 1024).toFixed(1)} KB — {language === "en" ? "Click to change file" : "फ़ाइल बदलने के लिए क्लिक करें"}
+            </p>
           </div>
         ) : (
           <div>
             <div style={{ fontSize: 32, marginBottom: 12 }}>📄</div>
-            <p style={{ color: "#fff", fontWeight: 600, fontSize: 15, marginBottom: 4 }}>Drag & drop your contract here</p>
-            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>or click to browse from your computer</p>
+            <p style={{ color: "#fff", fontWeight: 600, fontSize: 15, marginBottom: 4 }}>{t("dragDrop")}</p>
+            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>{t("browse")}</p>
           </div>
         )}
       </div>
@@ -131,7 +143,9 @@ export default function UploadPage() {
               <div className="spinner" />
               <span style={{ color: "#a78bfa", fontSize: 12.5, fontWeight: 600 }}>{stage}</span>
             </div>
-            <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 11, fontFamily: "monospace" }}>Processing</span>
+            <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 11, fontFamily: "monospace" }}>
+              {language === "en" ? "Processing" : "प्रसंस्करण"}
+            </span>
           </div>
           <div style={{ width: "100%", background: "rgba(255,255,255,0.08)", borderRadius: 99, height: 6, overflow: "hidden" }}>
             <div style={{
@@ -142,7 +156,9 @@ export default function UploadPage() {
             }} />
           </div>
           <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 11, marginTop: 10 }}>
-            Running 7-layer AI pipeline — this usually takes 15-30 seconds...
+            {language === "en"
+              ? "Running 7-layer AI pipeline — this usually takes 15-30 seconds..."
+              : "7-परत एआई पाइपलाइन चल रही है — इसमें आमतौर पर 15-30 सेकंड लगते हैं..."}
           </p>
         </div>
       )}
@@ -153,7 +169,7 @@ export default function UploadPage() {
         className="btn-primary"
         style={{ width: "100%", marginTop: 16, justifyContent: "center", padding: 12, fontSize: 13, borderRadius: 10 }}
       >
-        {uploading ? "Analyzing Document…" : "🚀 Analyze Contract"}
+        {uploading ? (language === "en" ? "Analyzing Document…" : "दस्तावेज़ का विश्लेषण हो रहा है…") : (language === "en" ? "🚀 Analyze Contract" : "🚀 अनुबंध का विश्लेषण करें")}
       </button>
 
       {/* Feature list */}
@@ -166,16 +182,16 @@ export default function UploadPage() {
           letterSpacing: "0.06em",
           textAlign: "center",
           marginBottom: 16
-        }}>Analysis Pipeline</h3>
+        }}>{t("pipelineTitle")}</h3>
         
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           {[
-            ["🔍", "OCR Extraction", "PyMuPDF · DOCX"],
-            ["✂️", "Smart Chunking", "Semantic windowing"],
-            ["🧠", "Vector Search", "MiniLM-L6 Embeddings"],
-            ["📌", "Clause Detection", "LegalBERT Hybrid"],
-            ["⚠️", "Risk Engine", "Rule-based scoring"],
-            ["💬", "RAG Engine", "Generative AI"],
+            ["🔍", t("ocrTitle"), t("ocrDesc")],
+            ["✂️", t("chunkTitle"), t("chunkDesc")],
+            ["🧠", t("vectorTitle"), t("vectorDesc")],
+            ["📌", t("clauseTitle"), t("clauseDesc")],
+            ["⚠️", t("riskEngineTitle"), t("riskEngineDesc")],
+            ["💬", t("ragTitle"), t("ragDesc")],
           ].map(([icon, title, sub]) => (
             <div key={title} className="card" style={{ padding: 12, display: "flex", gap: 10, alignItems: "flex-start" }}>
               <span style={{ fontSize: 20 }}>{icon}</span>

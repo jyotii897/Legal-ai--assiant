@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface DocMeta {
   id: string;
@@ -21,6 +22,7 @@ const riskBadge: Record<string, string> = {
 export default function Dashboard() {
   const [docs, setDocs] = useState<DocMeta[]>([]);
   const [loading, setLoading] = useState(true);
+  const { language, t } = useLanguage();
 
   useEffect(() => {
     fetch("http://localhost:8000/api/documents")
@@ -41,10 +43,13 @@ export default function Dashboard() {
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-72 h-72 rounded-full bg-emerald-500/10 blur-[80px]" />
         <div className="relative z-10 max-w-xl">
           <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
-            Contract Intelligence <span className="text-teal-400">Dashboard</span>
+            {language === "en" ? "Contract Intelligence" : "अनुबंध इंटेलिजेंस"}{" "}
+            <span className="text-teal-400">{language === "en" ? "Dashboard" : "डैशबोर्ड"}</span>
           </h1>
           <p className="text-slate-400 text-sm leading-relaxed">
-            Upload legal contracts for AI-powered analysis — OCR · RAG · LegalBERT · Risk Detection
+            {language === "en"
+              ? "Upload legal contracts for AI-powered analysis — OCR · RAG · LegalBERT · Risk Detection"
+              : "एआई-संचालित विश्लेषण के लिए कानूनी अनुबंध अपलोड करें — ओसीआर · रैग · लीगलबीईआरटी · जोखिम पहचान"}
           </p>
         </div>
 
@@ -97,10 +102,10 @@ export default function Dashboard() {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         {[
-          { label: "Total Documents", value: docs.length, subtext: "Contracts uploaded", icon: "📁", color: "text-teal-400", bg: "bg-teal-500/10", border: "border-teal-500/10" },
-          { label: "Critical Risks",  value: critical,    subtext: "Requires immediate attention", icon: "⚠️",  color: "text-red-400",     bg: "bg-red-500/10",     border: "border-red-500/10" },
-          { label: "High Risks",      value: high,        subtext: "High priority issues", icon: "🔥",  color: "text-orange-400", bg: "bg-orange-500/10",  border: "border-orange-500/10" },
-          { label: "API Status",      value: "Online",    subtext: "All systems operational", icon: "⚡",  color: "text-emerald-400",bg: "bg-emerald-500/10", border: "border-emerald-500/10" },
+          { label: t("totalDocuments"), value: docs.length, subtext: t("contractsUploaded"), icon: "📁", color: "text-teal-400", bg: "bg-teal-500/10", border: "border-teal-500/10" },
+          { label: t("criticalRisks"),  value: critical,    subtext: t("requiresAttention"), icon: "⚠️",  color: "text-red-400",     bg: "bg-red-500/10",     border: "border-red-500/10" },
+          { label: t("highRisks"),      value: high,        subtext: t("highPriorityIssues"), icon: "🔥",  color: "text-orange-400", bg: "bg-orange-500/10",  border: "border-orange-500/10" },
+          { label: t("apiStatus"),      value: language === "en" ? "Online" : "ऑनलाइन",    subtext: t("systemsOperational"), icon: "⚡",  color: "text-emerald-400",bg: "bg-emerald-500/10", border: "border-emerald-500/10" },
         ].map((s) => (
           <div key={s.label} className={`card flex flex-col p-6 hover:-translate-y-1 transition-all border ${s.border} bg-[#0b0c16]/50`}>
             <div className="flex items-center gap-4 mb-4">
@@ -120,16 +125,16 @@ export default function Dashboard() {
       {/* Documents Table */}
       <div className="card !p-0 overflow-hidden bg-[#0b0c16]/50 border border-white/5">
         <div className="px-6 sm:px-8 py-5 border-b border-white/5 flex justify-between items-center bg-white/[0.01]">
-          <h2 className="font-semibold text-white text-lg">Analyzed Contracts</h2>
+          <h2 className="font-semibold text-white text-lg">{t("analyzedContracts")}</h2>
           <Link href="/upload" className="btn-primary px-5 py-2.5 text-sm flex items-center gap-2">
-            <span>📤</span> Upload Contract
+            <span>📤</span> {t("uploadContract")}
           </Link>
         </div>
 
         {loading ? (
           <div className="p-16 text-center">
             <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <div className="text-slate-400">Loading documents...</div>
+            <div className="text-slate-400">{t("loadingDocs")}</div>
           </div>
         ) : docs.length === 0 ? (
           <div className="py-16 sm:py-24 px-6 flex flex-col items-center justify-center text-center">
@@ -137,10 +142,10 @@ export default function Dashboard() {
               <span className="text-4xl">📂</span>
               <div className="absolute inset-[-8px] border border-dashed border-slate-600/30 rounded-full animate-[spin_40s_linear_infinite]" />
             </div>
-            <h3 className="text-lg sm:text-xl font-bold text-white mb-2">No contracts analyzed yet</h3>
-            <p className="text-slate-400 mb-6 text-sm sm:text-base max-w-md mx-auto">Upload your first contract to extract clauses, identify risks, and chat with the document.</p>
+            <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{t("noContractsYet")}</h3>
+            <p className="text-slate-400 mb-6 text-sm sm:text-base max-w-md mx-auto">{t("uploadPrompt")}</p>
             <Link href="/upload" className="btn-primary px-6 sm:px-8 py-2.5 sm:py-3 text-sm sm:text-base flex items-center gap-2">
-              <span>📤</span> Upload Your First Contract
+              <span>📤</span> {t("uploadFirstBtn")}
             </Link>
           </div>
         ) : (
@@ -148,9 +153,12 @@ export default function Dashboard() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/5 bg-white/[0.01] text-slate-400 text-xs uppercase tracking-wider">
-                  {["Document", "Chunks", "Clauses", "Risks", "Risk Level", ""].map((h) => (
-                    <th key={h} className="px-8 py-4 text-left font-semibold">{h}</th>
-                  ))}
+                  <th className="px-8 py-4 text-left font-semibold">{t("document")}</th>
+                  <th className="px-8 py-4 text-left font-semibold">{t("chunks")}</th>
+                  <th className="px-8 py-4 text-left font-semibold">{t("clauses")}</th>
+                  <th className="px-8 py-4 text-left font-semibold">{t("risks")}</th>
+                  <th className="px-8 py-4 text-left font-semibold">{t("riskLevel")}</th>
+                  <th className="px-8 py-4 text-left font-semibold"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -171,7 +179,7 @@ export default function Dashboard() {
                     <td className="px-8 py-5 text-right">
                       <Link href={`/documents/${doc.id}`}
                         className="inline-flex items-center text-teal-400 hover:text-teal-300 font-medium text-sm transition-colors">
-                        View Report <span className="ml-1 group-hover:translate-x-1 transition-transform">→</span>
+                        {t("viewReport")} <span className="ml-1 group-hover:translate-x-1 transition-transform">→</span>
                       </Link>
                     </td>
                   </tr>

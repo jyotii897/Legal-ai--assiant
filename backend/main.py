@@ -130,6 +130,7 @@ def get_document(doc_id: str):
 class QueryRequest(BaseModel):
     document_id: str
     question: str
+    language: str = "en"
 
 
 @app.post("/api/query")
@@ -145,5 +146,5 @@ def query_document(req: QueryRequest):
     from rag.qa import ask_question
 
     ctx = search_chunks(doc["faiss_index"], doc["chunks"], req.question, k=5)
-    result = ask_question(req.question, ctx)
+    result = ask_question(req.question, ctx, req.language)
     return result

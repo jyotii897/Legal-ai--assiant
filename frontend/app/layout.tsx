@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -18,13 +19,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         className={`${inter.variable} font-sans min-h-screen selection:bg-teal-500/30 selection:text-teal-200`}
         style={{ backgroundColor: "#020617", color: "#e2e8f0" }}
       >
-        <div className="app-shell">
-          <Sidebar />
-          <div className="main-area">
-            <Navbar />
-            <main className="page-content">{children}</main>
+        <LanguageProvider>
+          <div className="app-shell">
+            <Sidebar />
+            <div className="main-area">
+              <Navbar />
+              <main className="page-content">{children}</main>
+            </div>
           </div>
-        </div>
+        </LanguageProvider>
       </body>
     </html>
   );

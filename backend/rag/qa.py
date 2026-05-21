@@ -4,6 +4,7 @@ import os
 LEGAL_QA_PROMPT = """You are a Legal AI Assistant. Answer the question based STRICTLY on the contract context below.
 If the answer is not in the context, say: "I cannot find this information in the provided document."
 Do NOT hallucinate. Be precise and professional.
+{lang_instruction}
 
 CONTRACT CONTEXT:
 {context}
@@ -13,7 +14,7 @@ QUESTION: {question}
 ANSWER:"""
 
 
-def ask_question(question: str, context_chunks: list) -> dict:
+def ask_question(question: str, context_chunks: list, language: str = "en") -> dict:
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         return {"answer": "GEMINI_API_KEY not configured on the server.", "citations": []}
@@ -21,7 +22,10 @@ def ask_question(question: str, context_chunks: list) -> dict:
         return {"answer": "No relevant context found in the document for this question.", "citations": []}
 
     context = "\n\n---\n\n".join(context_chunks)
-    prompt = LEGAL_QA_PROMPT.format(context=context, question=question)
+    
+    # Inject language direction
+    lang_instruction = "You MUST answer the question in Hindi (हिंदी)." if language == "hi" else "You MUST answer the question in English."
+    prompt = LEGAL_QA_PROMPT.format(context=context, question=question, lang_instruction=lang_instruction)
 
     try:
         client = genai.Client(api_key=api_key)
